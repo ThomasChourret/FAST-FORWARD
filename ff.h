@@ -207,17 +207,17 @@
 
 
 
-#define MAX_CONSTANTS 2000
-#define MAX_PREDICATES 2000 /* MS: increased from 500*/
+#define MAX_CONSTANTS 2500 /* MS: increased from 2000 */
+#define MAX_PREDICATES 4400 /* MS: increased from 500*/
 #define MAX_TYPES 50
 #define MAX_ARITY 5
 #define MAX_VARS 15
 
 
-#define MAX_TYPE 2000
+#define MAX_TYPE 2500 /* MS: increased from 2000 */
 
 
-#define MAX_OPERATORS 10000 /* MS: increased from 1000 */
+#define MAX_OPERATORS 105000 /* MS: increased from 1000 */
 
 
 /* in DNF: AND with OR - sons - collect 'hitting set':
@@ -1474,4 +1474,4 @@ extern State gplan_states[MAX_PLAN_LENGTH + 1];
 
 
 
-#endif __FF_H
+#endif /* __FF_H */

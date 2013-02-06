@@ -68,9 +68,6 @@ static char *serrmsg[] = {
 };
 
 
-/* void opserr( int errno, char *par ); */
-
-
 static int sact_err;
 static char *sact_err_par = NULL;
 static PlOperator *scur_op = NULL;
@@ -161,7 +158,7 @@ int supported( char *str )
 /**********************************************************************/
 file:
 { 
-  opserr( DOMDEF_EXPECTED, NULL ); 
+  
 }
 domain_definition 
 ;
@@ -173,7 +170,7 @@ domain_definition :
 OPEN_PAREN  DEFINE_TOK  domain_name       
 { 
 }
-optional_domain_defs 
+optional_domain_defs CLOSE_PAREN
 {
   if ( gcmd_line.display_info >= 1 ) {
     printf("\ndomain '%s' defined\n", gdomain_name);
@@ -194,17 +191,17 @@ OPEN_PAREN  DOMAIN_TOK  NAME  CLOSE_PAREN
 
 /**********************************************************************/
 optional_domain_defs:
-CLOSE_PAREN  /* end of domain */
+/* empty */
 |
-require_def  optional_domain_defs
+optional_domain_defs require_def
 |
-constants_def  optional_domain_defs
+optional_domain_defs constants_def
 |
-types_def  optional_domain_defs
+optional_domain_defs types_def
 |
-action_def  optional_domain_defs
+optional_domain_defs action_def
 |
-predicates_def  optional_domain_defs
+optional_domain_defs predicates_def
 ;
 
 
@@ -222,9 +219,8 @@ predicates_list :
 /* empty = finished */
 {}
 |
-OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN
+predicates_list OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN
 {
-
   TypedListList *tll;
 
   if ( gparse_predicates ) {
@@ -239,13 +235,11 @@ OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN
     gparse_predicates = tll;
   }
 
-  tll->predicate = new_Token( strlen( $2 ) + 1);
-  strcpy( tll->predicate, $2 );
+  tll->predicate = new_Token( strlen( $3 ) + 1);
+  strcpy( tll->predicate, $3 );
 
-  tll->args = $3;
-
+  tll->args = $4;
 }
-predicates_list
 ;
 
 
@@ -253,12 +247,11 @@ predicates_list
 require_def:
 OPEN_PAREN  REQUIREMENTS_TOK 
 { 
-  opserr( REQUIREM_EXPECTED, NULL ); 
+  
 }
 NAME
 { 
-  if ( !supported( $4 ) ) {
-    opserr( NOT_SUPPORTED, $4 );
+  if ( !supported( $4 ) ) {    
     yyerror();
   }
 }
@@ -270,14 +263,12 @@ require_key_star  CLOSE_PAREN
 require_key_star:
 /* empty */
 |
-NAME
+require_key_star NAME
 { 
-  if ( !supported( $1 ) ) {
-    opserr( NOT_SUPPORTED, $1 );
+  if ( !supported( $2 ) ) {    
     yyerror();
   }
 }
-require_key_star
 ;
 
 
@@ -285,7 +276,7 @@ require_key_star
 types_def:
 OPEN_PAREN  TYPES_TOK
 { 
-  opserr( TYPEDEF_EXPECTED, NULL ); 
+  
 }
 typed_list_name  CLOSE_PAREN
 {
@@ -298,7 +289,7 @@ typed_list_name  CLOSE_PAREN
 constants_def:
 OPEN_PAREN  CONSTANTS_TOK
 { 
-  opserr( CONSTLIST_EXPECTED, NULL ); 
+  
 }
 typed_list_name  CLOSE_PAREN
 {
@@ -313,7 +304,7 @@ typed_list_name  CLOSE_PAREN
 action_def:
 OPEN_PAREN  ACTION_TOK  
 { 
-  opserr( ACTION, NULL ); 
+  
 }  
 NAME
 { 
@@ -390,17 +381,10 @@ action_def_body
  * predicates in the leafs.
  **********************************************************************/
 adl_goal_description:
-literal_term
-{ 
-  if ( sis_negated ) {
-    $$ = new_PlNode(NOT);
-    $$->sons = new_PlNode(ATOM);
-    $$->sons->atom = $1;
-    sis_negated = FALSE;
-  } else {
-    $$ = new_PlNode(ATOM);
-    $$->atom = $1;
-  }
+atomic_formula_term
+{   
+  $$ = new_PlNode(ATOM);
+  $$->atom = $1;  
 }
 |
 OPEN_PAREN  AND_TOK  adl_goal_description_star  CLOSE_PAREN
@@ -470,10 +454,10 @@ adl_goal_description_star:
   $$ = NULL;
 }
 |
-adl_goal_description  adl_goal_description_star
+adl_goal_description_star adl_goal_description  
 {
-  $1->next = $2;
-  $$ = $1;
+  $2->next = $1;
+  $$ = $2;
 }
 ;
 
@@ -540,10 +524,10 @@ adl_effect_star:
   $$ = NULL; 
 }
 |
-adl_effect  adl_effect_star
+adl_effect_star adl_effect  
 {
-  $1->next = $2;
-  $$ = $1;
+  $2->next = $1;
+  $$ = $2;
 }
 ;
 
@@ -739,26 +723,7 @@ VARIABLE  typed_list_variable        /* a list element (gets type from next one)
 
 /* 
  * call	bison -pops -bscan-ops scan-ops.y
- */
-
-void opserr( int errno, char *par )
-
-{
-
-/*   sact_err = errno; */
-
-/*   if ( sact_err_par ) { */
-/*     free(sact_err_par); */
-/*   } */
-/*   if ( par ) { */
-/*     sact_err_par = new_Token(strlen(par)+1); */
-/*     strcpy(sact_err_par, par); */
-/*   } else { */
-/*     sact_err_par = NULL; */
-/*   } */
-
-}
-  
+ */  
 
 
 int yyerror( char *msg )

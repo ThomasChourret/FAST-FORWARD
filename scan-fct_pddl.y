@@ -75,8 +75,6 @@ static char * serrmsg[] = {
 };
 
 
-/* void fcterr( int errno, char *par ); */
-
 
 static int sact_err;
 static char *sact_err_par = NULL;
@@ -145,7 +143,7 @@ static Bool sis_negated = FALSE;
 file:
 /* empty */
 |
-problem_definition  file
+file problem_definition  
 ;
 
 
@@ -153,7 +151,7 @@ problem_definition  file
 problem_definition : 
 OPEN_PAREN DEFINE_TOK         
 { 
-  fcterr( PROBNAME_EXPECTED, NULL ); 
+  
 }
 problem_name  problem_defs  CLOSE_PAREN                 
 {  
@@ -180,7 +178,7 @@ base_domain_name :
 OPEN_PAREN  BDOMAIN_TOK  NAME  CLOSE_PAREN
 { 
   if ( SAME != strcmp($3, gdomain_name) ) {
-    fcterr( BADDOMAIN, NULL );
+    
     yyerror();
   }
 }
@@ -191,13 +189,13 @@ OPEN_PAREN  BDOMAIN_TOK  NAME  CLOSE_PAREN
 problem_defs:
 /* empty */
 |
-objects_def  problem_defs
+problem_defs objects_def  
 |
-init_def  problem_defs
+problem_defs init_def  
 |
-goal_def  problem_defs
+problem_defs goal_def  
 |
-base_domain_name  problem_defs
+problem_defs base_domain_name  
 ;
 
 
@@ -214,7 +212,7 @@ OPEN_PAREN  OBJECTS_TOK  typed_list_name  CLOSE_PAREN
 init_def:
 OPEN_PAREN  INIT_TOK
 {
-  fcterr( INIFACTS, NULL ); 
+  
 }
 literal_name_plus  CLOSE_PAREN
 {
@@ -228,7 +226,7 @@ literal_name_plus  CLOSE_PAREN
 goal_def:
 OPEN_PAREN  GOAL_TOK
 { 
-  fcterr( GOALDEF, NULL ); 
+  
 }
 adl_goal_description  CLOSE_PAREN
 {
@@ -244,17 +242,10 @@ adl_goal_description  CLOSE_PAREN
  * predicates in the leafs.
  **********************************************************************/
 adl_goal_description:
-literal_term
-{ 
-  if ( sis_negated ) {
-    $$ = new_PlNode(NOT);
-    $$->sons = new_PlNode(ATOM);
-    $$->sons->atom = $1;
-    sis_negated = FALSE;
-  } else {
-    $$ = new_PlNode(ATOM);
-    $$->atom = $1;
-  }
+atomic_formula_term
+{   
+  $$ = new_PlNode(ATOM);
+  $$->atom = $1;  
 }
 |
 OPEN_PAREN  AND_TOK  adl_goal_description_star  CLOSE_PAREN
@@ -327,10 +318,10 @@ adl_goal_description_star:
   $$ = NULL;
 }
 |
-adl_goal_description  adl_goal_description_star
+adl_goal_description_star adl_goal_description  
 {
-  $1->next = $2;
-  $$ = $1;
+  $2->next = $1;
+  $$ = $2;
 }
 ;
 
@@ -523,10 +514,10 @@ literal_name
   $$ = $1;
 }
 |
-literal_name literal_name_plus
+literal_name_plus literal_name 
 {
-   $$ = $1;
-   $$->next = $2;
+   $$ = $2;
+   $$->next = $1;
 }
 ;
  
@@ -590,21 +581,6 @@ NAME  name_star
 /* 
  * call	bison -pfct -bscan-fct scan-fct.y
  */
-void fcterr( int errno, char *par ) {
-
-/*   sact_err = errno; */
-
-/*   if ( sact_err_par ) { */
-/*     free( sact_err_par ); */
-/*   } */
-/*   if ( par ) { */
-/*     sact_err_par = new_Token( strlen(par)+1 ); */
-/*     strcpy( sact_err_par, par); */
-/*   } else { */
-/*     sact_err_par = NULL; */
-/*   } */
-
-}
 
 
 
