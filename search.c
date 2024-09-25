@@ -107,7 +107,7 @@
 
 /* in agenda driven algorithm, the current set of goals is this
  */
-State lcurrent_goals;
+extern State lcurrent_goals;
 
 
 
