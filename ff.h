@@ -208,7 +208,7 @@
 
 
 #define MAX_CONSTANTS 2500 /* MS: increased from 2000 */
-#define MAX_PREDICATES 4400 /* MS: increased from 500*/
+#define MAX_PREDICATES 20000 /* MS: increased from 500*/
 #define MAX_TYPES 50
 #define MAX_ARITY 5
 #define MAX_VARS 15
@@ -217,7 +217,7 @@
 #define MAX_TYPE 2500 /* MS: increased from 2000 */
 
 
-#define MAX_OPERATORS 105000 /* MS: increased from 1000 */
+#define MAX_OPERATORS 350000 /* MS: increased from 1000 */
 
 
 /* in DNF: AND with OR - sons - collect 'hitting set':
